@@ -1,0 +1,4 @@
+name: SolaniumTowny
+version: '${project.version}'
+main: dev.solanium.solaniumtowny.SolaniumTowny
+api-version: '1.16'

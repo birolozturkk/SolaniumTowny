@@ -1,0 +1,8 @@
+messages:
+  prefix: "&3CQuest &8>>"
+  reloaded: "%prefix% config files reloaded"
+  invalid-argument: "&cInvalid Argument"
+  no-permission: "%prefix% &cYou do not have permission to run this command."
+  too-many-arguments: "%prefix% &cToo many arguments."
+  not-enough-arguments: "%prefix% &cNot enough arguments."
+  unknown-command: "%prefix% &cUnknown command."

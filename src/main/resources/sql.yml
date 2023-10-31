@@ -1,0 +1,7 @@
+driver: "SQLITE"
+host: "localhost"
+database: "SolaniumTowny"
+username: ""
+password: ""
+port: 3306
+useSSL: false
