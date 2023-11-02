@@ -34,7 +34,11 @@ public class TownManager {
             town = townRepository.registerTown(town).join();
 
             Chunk chunk = owner.getLocation().getChunk();
-            TownRegion townRegion = new TownRegion(town.getId(), chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            TownRegion townRegion = new TownRegion(town.getId(),
+                    chunk.getWorld().getName(),
+                    chunk.getX(),
+                    chunk.getZ(),
+                    owner.getUniqueId());
             townRegionRepository.registerTownRegion(townRegion).join();
 
             user.setTown(town);
@@ -50,10 +54,12 @@ public class TownManager {
     public CompletableFuture<TownRegion> claimTownRegion(Player player, Town town) {
         return CompletableFuture.supplyAsync(() -> {
             Chunk chunk = player.getLocation().getChunk();
-            TownRegion townRegion = new TownRegion(town.getId(), chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            TownRegion townRegion = new TownRegion(town.getId(),
+                    chunk.getWorld().getName(),
+                    chunk.getX(),
+                    chunk.getZ(),
+                    player.getUniqueId());
             townRegionRepository.registerTownRegion(townRegion).join();
-
-            plugin.getUserRepository().save();
 
             return townRegion;
         }).exceptionally(throwable -> {

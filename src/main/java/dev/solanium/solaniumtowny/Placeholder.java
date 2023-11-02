@@ -48,6 +48,8 @@ public class Placeholder {
             townRegion.getTown().ifPresent(this::applyForTown);
             placeholders.add(new Placeholder("%town_region_x%", String.valueOf(townRegion.getX())));
             placeholders.add(new Placeholder("%town_region_z%", String.valueOf(townRegion.getZ())));
+            placeholders.add(new Placeholder("%town_region_claimed_by%", Bukkit.getOfflinePlayer(townRegion.getClaimedBy()).getName()));
+            placeholders.add(new Placeholder("%town_region_claimed_at%", formatter.format(townRegion.getClaimedAt().toLocalDateTime())));
             return this;
         }
 

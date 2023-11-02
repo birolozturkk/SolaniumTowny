@@ -40,9 +40,9 @@ public class Town extends DatabaseObject {
 
     public Town(String name, UUID createdBy) {
         this.name = name;
-        this.createdBy = createdBy;
         this.owner = createdBy;
-        this.createdAt = Timestamp.valueOf(LocalDateTime.now());
+        this.createdBy = createdBy;
+        this.createdAt = Timestamp.from(Instant.now());
     }
 
     public List<TownRegion> getTownRegions() {

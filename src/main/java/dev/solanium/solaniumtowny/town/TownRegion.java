@@ -1,5 +1,6 @@
 package dev.solanium.solaniumtowny.town;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import dev.solanium.solaniumtowny.DatabaseObject;
@@ -11,6 +12,9 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,15 +38,23 @@ public class TownRegion extends DatabaseObject {
     @DatabaseField
     private int z;
 
+    @DatabaseField(columnName = "claimed_by")
+    private UUID claimedBy;
+
+    @DatabaseField(columnName = "claimed_at", dataType = DataType.TIME_STAMP)
+    private Timestamp claimedAt;
+
     public TownRegion(int townId) {
         this.townId = townId;
     }
 
-    public TownRegion(int townId, String worldName, int x, int z) {
+    public TownRegion(int townId, String worldName, int x, int z, UUID claimedBy) {
         this.townId = townId;
         this.worldName = worldName;
         this.x = x;
         this.z = z;
+        this.claimedBy = claimedBy;
+        this.claimedAt = Timestamp.from(Instant.now());
     }
 
     public boolean isInRegion(Location location) {

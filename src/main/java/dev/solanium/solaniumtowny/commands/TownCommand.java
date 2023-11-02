@@ -31,13 +31,12 @@ public class TownCommand extends BaseCommand {
     @SubCommand(value = "create")
     @Permission(value = "solaniumtowny.town.create")
     public void createTown(Player player, String townName) {
-        User user = plugin.getUserManager().getUser(player);
-        if (user.getTown().isPresent()) {
+        if (hasAnyTown(player)) {
             StringUtils.sendMessage(player, plugin.getLang().getString("you-already-res"));
             return;
         }
 
-        if(!isValidRegion(player)) return;
+        if (!isValidRegion(player)) return;
 
         plugin.getTownManager().createTown(player, townName)
                 .thenAccept(town -> {
@@ -51,14 +50,14 @@ public class TownCommand extends BaseCommand {
     @SubCommand(value = "claim")
     @Permission(value = "solaniumtowny.town.claim")
     public void claimRegion(Player player) {
-        User user = plugin.getUserManager().getUser(player);
-        if (user.getTown().isEmpty()) {
+        if (!hasAnyTown(player)) {
             StringUtils.sendMessage(player, plugin.getLang().getString("has-no-town"));
             return;
         }
 
-        if(!isValidRegion(player)) return;
+        if (!isValidRegion(player)) return;
 
+        User user = plugin.getUserManager().getUser(player);
         plugin.getTownManager().claimTownRegion(player, user.getTown().get())
                 .thenAccept(townRegion -> StringUtils.sendMessage(player, plugin.getLang().getString("claimed")));
     }
@@ -73,9 +72,10 @@ public class TownCommand extends BaseCommand {
         }
 
         User user = plugin.getUserManager().getUser(player);
+        Collection<TownRegion> townRegions = plugin.getTownManager().getTownRegionsAround(chunk,
+                plugin.getConfig().getInt("max-claim-radius-value"));
         if(user.getTown().isPresent()) {
-            Collection<TownRegion> townRegions = plugin.getTownManager().getTownRegionsAround(chunk,
-                            plugin.getConfig().getInt("max-claim-radius-value")).stream()
+            townRegions = townRegions.stream()
                     .map(TownRegion::getTown)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
@@ -83,12 +83,17 @@ public class TownCommand extends BaseCommand {
                     .map(Town::getTownRegions)
                     .flatMap(List::stream)
                     .toList();
-            if (!townRegions.isEmpty() &&) {
-                StringUtils.sendMessage(player, plugin.getLang().getString("too-close"));
-                return false;
-            }
+        }
+        if (!townRegions.isEmpty()) {
+            StringUtils.sendMessage(player, plugin.getLang().getString("too-close"));
+            return false;
         }
         return true;
+    }
+
+    private boolean hasAnyTown(Player player) {
+        User user = plugin.getUserManager().getUser(player);
+        return user.getTown().isPresent();
     }
 
 }
