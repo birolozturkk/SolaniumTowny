@@ -2,6 +2,8 @@ package dev.solanium.solaniumtowny.database;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.jdbc.db.DatabaseTypeUtils;
+import com.j256.ormlite.logger.LoggerFactory;
+import com.j256.ormlite.logger.NullLogBackend;
 import com.j256.ormlite.support.ConnectionSource;
 import dev.solanium.solaniumtowny.SolaniumTowny;
 import dev.solanium.solaniumtowny.config.Configuration;
@@ -19,6 +21,7 @@ public abstract class DatabaseManager {
     }
 
     public ConnectionSource init() {
+        LoggerFactory.setLogBackendFactory(new NullLogBackend.NullLogBackendFactory());
         try {
             String databaseURL = getDatabaseURL();
             return new JdbcConnectionSource(

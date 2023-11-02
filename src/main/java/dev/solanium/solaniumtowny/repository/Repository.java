@@ -8,6 +8,7 @@ import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 import dev.solanium.solaniumtowny.DatabaseObject;
 import dev.solanium.solaniumtowny.SortedList;
+import lombok.Getter;
 
 import java.lang.invoke.TypeDescriptor;
 import java.sql.SQLException;
@@ -16,14 +17,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class Repository<T extends DatabaseObject, ID> {
+public class Repository<T extends DatabaseObject, ID> {
 
     protected final Dao<T, ID> dao;
+
+    @Getter
     protected final SortedList<T> entries;
 
     private final ConnectionSource connectionSource;
 
-    protected Repository(ConnectionSource connectionSource, Class<T> dataClass, Comparator<T> comparator) {
+    public Repository(ConnectionSource connectionSource, Class<T> dataClass, Comparator<T> comparator) {
         this.connectionSource = connectionSource;
         this.entries = new SortedList<>(comparator);
         try {
@@ -35,11 +38,19 @@ public abstract class Repository<T extends DatabaseObject, ID> {
             throw new RuntimeException(e);
         }
         this.entries.forEach(t -> t.setChanged(false));
-        this.entries.sort();
+        sort();
     }
 
     public void addEntry(T t) {
         entries.add(t);
+    }
+
+    public T create(T entry) {
+        try {
+            return dao.createIfNotExists(entry);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void save() {
@@ -54,6 +65,10 @@ public abstract class Repository<T extends DatabaseObject, ID> {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    protected void sort() {
+        entries.sort();
     }
 
     private DatabaseConnection getDatabaseConnection() {

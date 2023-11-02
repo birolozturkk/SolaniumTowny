@@ -1,8 +1,4 @@
-messages:
-  prefix: "&3CQuest &8>>"
-  reloaded: "%prefix% config files reloaded"
-  invalid-argument: "&cInvalid Argument"
-  no-permission: "%prefix% &cYou do not have permission to run this command."
-  too-many-arguments: "%prefix% &cToo many arguments."
-  not-enough-arguments: "%prefix% &cNot enough arguments."
-  unknown-command: "%prefix% &cUnknown command."
+prefix: "&3SolaniumTowny &8>>"
+lang: "en-US"
+date-pattern: ""
+max-claim-radius-value: 4

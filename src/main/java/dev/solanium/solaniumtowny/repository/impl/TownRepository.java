@@ -7,6 +7,7 @@ import dev.solanium.solaniumtowny.town.Town;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class TownRepository extends Repository<Town, Integer> {
 
@@ -16,5 +17,13 @@ public class TownRepository extends Repository<Town, Integer> {
 
     public Optional<Town> findTownById(int id) {
         return entries.getEntry(new Town(id));
+    }
+
+    public CompletableFuture<Town> registerTown(Town town) {
+        return CompletableFuture.supplyAsync(() -> {
+            addEntry(town);
+            entries.sort();
+            return create(town);
+        });
     }
 }

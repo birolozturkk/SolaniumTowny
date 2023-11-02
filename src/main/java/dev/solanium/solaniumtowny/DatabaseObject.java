@@ -1,14 +1,11 @@
 package dev.solanium.solaniumtowny;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public abstract class DatabaseObject {
 
-    private boolean changed;
-
-    public boolean isChanged() {
-        return changed;
-    }
-
-    public void setChanged(boolean changed) {
-        this.changed = changed;
-    }
+    private boolean changed = true;
 }

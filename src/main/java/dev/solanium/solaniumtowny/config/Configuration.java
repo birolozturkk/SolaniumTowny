@@ -20,7 +20,7 @@ public class Configuration extends YamlConfiguration {
     public void create(){
         if (!file.exists()) {
             file.getParentFile().mkdirs();
-            plugin.saveResource(file.getName(), false);
+            plugin.saveResource(file.getPath().substring(22), false);
         }
         reload();
     }
