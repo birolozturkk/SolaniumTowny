@@ -44,6 +44,11 @@ public class TownRegion extends DatabaseObject {
     @DatabaseField(columnName = "claimed_at", dataType = DataType.TIME_STAMP)
     private Timestamp claimedAt;
 
+    public TownRegion(int id, int townId) {
+        this.id = id;
+        this.townId = townId;
+    }
+
     public TownRegion(int townId) {
         this.townId = townId;
     }

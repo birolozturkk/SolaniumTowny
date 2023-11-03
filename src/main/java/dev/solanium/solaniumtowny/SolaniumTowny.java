@@ -28,6 +28,7 @@ public final class SolaniumTowny extends JavaPlugin {
 
     private final Configuration config = new Configuration(this, "config.yml");
     private final Configuration sqlConfig = new Configuration(this, "sql.yml");
+    private final Configuration townMapGUI = new Configuration(this, "menus/TownMapGUI.yml");
     private Configuration lang;
 
     private TownRepository townRepository;
@@ -39,6 +40,9 @@ public final class SolaniumTowny extends JavaPlugin {
     private DatabaseManager databaseManager;
     private BukkitCommandManager<CommandSender> commandManager;
 
+    private SolaniumTownyCommand solaniumTownyCommand;
+    private TownCommand townCommand;
+
     private BukkitAudiences adventure;
 
     private BukkitTask saveTask;
@@ -49,10 +53,10 @@ public final class SolaniumTowny extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        this.adventure = BukkitAudiences.create(this);
 
         config.create();
         sqlConfig.create();
+        townMapGUI.create();
         lang = new Configuration(this, "lang/" + config.getString("lang") + ".yml");
         lang.create();
 
@@ -61,7 +65,10 @@ public final class SolaniumTowny extends JavaPlugin {
         setupCommands();
 
         saveTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::saveData, 0, 20 * 60 * 5);
+
+        this.adventure = BukkitAudiences.create(this);
     }
+
     @Override
     public void onDisable() {
         if (this.adventure != null) {
@@ -98,9 +105,12 @@ public final class SolaniumTowny extends JavaPlugin {
     }
 
     private void setupCommands() {
+        this.solaniumTownyCommand = new SolaniumTownyCommand(this);
+        this.townCommand = new TownCommand(this);
+
         this.commandManager = BukkitCommandManager.create(this);
-        commandManager.registerCommand(new TownCommand(this));
-        commandManager.registerCommand(new SolaniumTownyCommand(this));
+        commandManager.registerCommand(solaniumTownyCommand);
+        commandManager.registerCommand(townCommand);
 
         commandManager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> adventure.sender(sender)
                 .sendMessage(StringUtils.format(lang.getString("invalid-argument"), Placeholder.builder().build())));
@@ -119,8 +129,9 @@ public final class SolaniumTowny extends JavaPlugin {
     }
 
     public void reload() {
-        this.config.reload();
-        this.sqlConfig.reload();
+        config.reload();
+        sqlConfig.reload();
+        townMapGUI.reload();
         lang = new Configuration(this, "lang/" + config.getString("lang") + ".yml");
         lang.create();
     }

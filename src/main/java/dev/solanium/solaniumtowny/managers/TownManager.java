@@ -33,13 +33,8 @@ public class TownManager {
             Town town = new Town(name, owner.getUniqueId());
             town = townRepository.registerTown(town).join();
 
-            Chunk chunk = owner.getLocation().getChunk();
-            TownRegion townRegion = new TownRegion(town.getId(),
-                    chunk.getWorld().getName(),
-                    chunk.getX(),
-                    chunk.getZ(),
-                    owner.getUniqueId());
-            townRegionRepository.registerTownRegion(townRegion).join();
+            TownRegion townRegion = claimTownRegion(owner, town).join();
+            town.setBaseRegionId(townRegion.getId());
 
             user.setTown(town);
             plugin.getUserRepository().save();
@@ -59,9 +54,7 @@ public class TownManager {
                     chunk.getX(),
                     chunk.getZ(),
                     player.getUniqueId());
-            townRegionRepository.registerTownRegion(townRegion).join();
-
-            return townRegion;
+            return townRegionRepository.registerTownRegion(townRegion).join();
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
@@ -94,7 +87,7 @@ public class TownManager {
                 .toList();
     }
 
-    private Collection<Chunk> getChunksAround(Chunk baseChunk, int offX, int offZ) {
+    public Collection<Chunk> getChunksAround(Chunk baseChunk, int offX, int offZ) {
         int baseX = baseChunk.getX();
         int baseZ = baseChunk.getZ();
 

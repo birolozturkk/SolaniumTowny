@@ -4,6 +4,7 @@ import dev.solanium.solaniumtowny.town.Town;
 import dev.solanium.solaniumtowny.town.TownRegion;
 import lombok.Data;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -50,6 +51,12 @@ public class Placeholder {
             placeholders.add(new Placeholder("%town_region_z%", String.valueOf(townRegion.getZ())));
             placeholders.add(new Placeholder("%town_region_claimed_by%", Bukkit.getOfflinePlayer(townRegion.getClaimedBy()).getName()));
             placeholders.add(new Placeholder("%town_region_claimed_at%", formatter.format(townRegion.getClaimedAt().toLocalDateTime())));
+            return this;
+        }
+
+        public PlaceholderBuilder applyForChunk(Chunk chunk) {
+            placeholders.add(new Placeholder("%chunk_x%", String.valueOf(chunk.getX())));
+            placeholders.add(new Placeholder("%chunk_z%", String.valueOf(chunk.getZ())));
             return this;
         }
 

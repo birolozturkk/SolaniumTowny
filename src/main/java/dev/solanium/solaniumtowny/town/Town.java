@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +25,9 @@ public class Town extends DatabaseObject {
 
     @DatabaseField
     private String name;
+
+    @DatabaseField(columnName = "base_region_id")
+    private int baseRegionId;
 
     @DatabaseField(columnName = "created_by")
     private UUID createdBy;
@@ -47,5 +51,14 @@ public class Town extends DatabaseObject {
 
     public List<TownRegion> getTownRegions() {
         return SolaniumTowny.getInstance().getTownRegionRepository().getTownRegions(id);
+    }
+
+    public Optional<TownRegion> getBaseRegion() {
+        return SolaniumTowny.getInstance().getTownRegionRepository().getEntries().getEntry(new TownRegion(baseRegionId, id));
+    }
+
+    public void setBaseRegionId(int baseRegionId) {
+        this.baseRegionId = baseRegionId;
+        setChanged(true);
     }
 }

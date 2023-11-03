@@ -2,6 +2,7 @@ package dev.solanium.solaniumtowny.commands;
 
 import dev.solanium.solaniumtowny.Placeholder;
 import dev.solanium.solaniumtowny.SolaniumTowny;
+import dev.solanium.solaniumtowny.gui.TownMapGUI;
 import dev.solanium.solaniumtowny.town.Town;
 import dev.solanium.solaniumtowny.town.TownRegion;
 import dev.solanium.solaniumtowny.user.User;
@@ -62,6 +63,12 @@ public class TownCommand extends BaseCommand {
                 .thenAccept(townRegion -> StringUtils.sendMessage(player, plugin.getLang().getString("claimed")));
     }
 
+    @SubCommand(value = "map")
+    @Permission(value = "solaniumtowny.town.map")
+    public void open(Player player) {
+        TownMapGUI.open(player);
+    }
+
     private boolean isValidRegion(Player player) {
         Chunk chunk = player.getLocation().getChunk();
         Optional<TownRegion> townRegionOptional = plugin.getTownManager().getTownRegionByChunk(chunk);
@@ -72,18 +79,15 @@ public class TownCommand extends BaseCommand {
         }
 
         User user = plugin.getUserManager().getUser(player);
-        Collection<TownRegion> townRegions = plugin.getTownManager().getTownRegionsAround(chunk,
-                plugin.getConfig().getInt("max-claim-radius-value"));
-        if(user.getTown().isPresent()) {
-            townRegions = townRegions.stream()
+        int radius = plugin.getConfig().getInt("max-claim-radius-value");
+        Collection<TownRegion> townRegions = plugin.getTownManager().getTownRegionsAround(chunk, radius).stream()
                     .map(TownRegion::getTown)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .filter(town -> !user.getTown().get().equals(town))
+                    .filter(town -> !town.equals(user.getTown().orElse(null)))
                     .map(Town::getTownRegions)
                     .flatMap(List::stream)
                     .toList();
-        }
         if (!townRegions.isEmpty()) {
             StringUtils.sendMessage(player, plugin.getLang().getString("too-close"));
             return false;

@@ -15,11 +15,18 @@ public class TownRegionRepository extends Repository<TownRegion, Integer> {
 
     public TownRegionRepository(ConnectionSource connectionSource) {
         super(connectionSource, TownRegion.class, Comparator.comparing(TownRegion::getId));
+        townRegions.addAll(getEntries());
         townRegions.sort();
     }
 
+    @Override
+    public void addEntry(TownRegion townRegion) {
+        super.addEntry(townRegion);
+        townRegions.add(townRegion);
+    }
+
     public List<TownRegion> getTownRegions(int townId) {
-        int index = Collections.binarySearch(townRegions, new TownRegion(townId),
+        int index = Collections.binarySearch(townRegions, new TownRegion(0, townId),
                 Comparator.comparing(TownRegion::getTownId));
         if (index < 0) return Collections.emptyList();
         List<TownRegion> result = new ArrayList<>();
