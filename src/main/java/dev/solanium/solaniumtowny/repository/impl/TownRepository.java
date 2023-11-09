@@ -21,9 +21,10 @@ public class TownRepository extends Repository<Town, Integer> {
 
     public CompletableFuture<Town> registerTown(Town town) {
         return CompletableFuture.supplyAsync(() -> {
-            addEntry(town);
+            Town createdTown = create(town);
+            addEntry(createdTown);
             entries.sort();
-            return create(town);
+            return createdTown;
         });
     }
 }

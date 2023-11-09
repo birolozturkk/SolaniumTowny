@@ -61,13 +61,6 @@ public class TownManager {
         });
     }
 
-    public Optional<Town> getTownByChunk(Chunk chunk) {
-        return getTownRegionByChunk(chunk)
-                .map(TownRegion::getTown)
-                .filter(Optional::isPresent)
-                .map(Optional::get);
-    }
-
     public Optional<TownRegion> getTownRegionByChunk(Chunk chunk) {
         return townRegionRepository.getEntries().stream()
                 .filter(townRegion -> townRegion.isInRegion(chunk))
@@ -79,7 +72,7 @@ public class TownManager {
     }
 
     public Collection<TownRegion> getTownRegionsAround(Chunk chunk, int radius) {
-        Collection<Chunk> chunks = getChunksAround(chunk, radius, radius);
+        Collection<Chunk> chunks = getChunksAround(chunk, radius, radius, true);
         return chunks.stream()
                 .map(this::getTownRegionByChunk)
                 .filter(Optional::isPresent)
@@ -87,18 +80,25 @@ public class TownManager {
                 .toList();
     }
 
-    public Collection<Chunk> getChunksAround(Chunk baseChunk, int offX, int offZ) {
-        int baseX = baseChunk.getX();
-        int baseZ = baseChunk.getZ();
+    public boolean availableForClaiming(Chunk chunk, Town town) {
+        return !plugin.getTownManager().getChunksAround(chunk, 1, 1, false).stream()
+                .map(plugin.getTownManager()::getTownRegionByChunk)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(townRegion -> townRegion.getTownId() == town.getId())
+                .toList().isEmpty();
+    }
 
-        Collection<Chunk> chunksAroundPlayer = new HashSet<>();
-        for (int x = ~offX; x < offX; x++) {
-            for (int z = ~offZ; z < offZ; z++) {
+    public Collection<Chunk> getChunksAround(Chunk baseChunk, int offX, int offZ, boolean includeCross) {
+        Collection<Chunk> chunksAround = new HashSet<>();
+        for (int x = -offX; x <= offX; x++) {
+            for (int z = -offZ; z <= offZ; z++) {
                 if(x == 0 && z == 0) continue;
-                Chunk chunk = baseChunk.getWorld().getChunkAt(baseX + x, baseZ + z);
-                chunksAroundPlayer.add(chunk);
+                if(!includeCross && x != 0 && z != 0) continue;
+                Chunk chunk = baseChunk.getWorld().getChunkAt(baseChunk.getX() + x, baseChunk.getZ() + z);
+                chunksAround.add(chunk);
             }
         }
-        return chunksAroundPlayer;
+        return chunksAround;
     }
 }
