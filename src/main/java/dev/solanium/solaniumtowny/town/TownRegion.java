@@ -49,10 +49,6 @@ public class TownRegion extends DatabaseObject {
         this.townId = townId;
     }
 
-    public TownRegion(int townId) {
-        this.townId = townId;
-    }
-
     public TownRegion(int townId, String worldName, int x, int z, UUID claimedBy) {
         this.townId = townId;
         this.worldName = worldName;

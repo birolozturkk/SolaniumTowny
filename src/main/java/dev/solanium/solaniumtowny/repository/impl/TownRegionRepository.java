@@ -61,9 +61,10 @@ public class TownRegionRepository extends Repository<TownRegion, Integer> {
 
     public CompletableFuture<TownRegion> registerTownRegion(TownRegion townRegion) {
         return CompletableFuture.supplyAsync(() -> {
-            addEntry(townRegion);
+            TownRegion createdTownRegion = create(townRegion);
+            addEntry(createdTownRegion);
             entries.sort();
-            return create(townRegion);
+            return createdTownRegion;
         });
     }
 }
