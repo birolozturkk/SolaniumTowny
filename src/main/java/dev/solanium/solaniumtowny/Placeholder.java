@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 public class Placeholder {
@@ -57,6 +58,8 @@ public class Placeholder {
         public PlaceholderBuilder applyForChunk(Chunk chunk) {
             placeholders.add(new Placeholder("%chunk_x%", String.valueOf(chunk.getX())));
             placeholders.add(new Placeholder("%chunk_z%", String.valueOf(chunk.getZ())));
+            Optional<TownRegion> townRegionOptional = SolaniumTowny.getInstance().getTownManager().getTownRegionByChunk(chunk);
+            townRegionOptional.ifPresent(this::applyForTownRegion);
             return this;
         }
 
