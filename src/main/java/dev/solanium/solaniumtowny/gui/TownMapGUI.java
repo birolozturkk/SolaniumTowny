@@ -11,15 +11,14 @@ import dev.solanium.solaniumtowny.utils.StringUtils;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
-import dev.triumphteam.gui.guis.PaginatedGui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class TownMapGUI {
 
@@ -41,39 +40,51 @@ public class TownMapGUI {
         User user = plugin.getUserManager().getUser(player);
 
         Optional<Town> townOptional = user.getTown();
-        if(townOptional.isEmpty()) return;
+        if (townOptional.isEmpty()) return;
         Town town = townOptional.get();
 
-        Optional<TownRegion> townRegionOptional = town.getBaseRegion();
-        if(townRegionOptional.isEmpty()) return;
-        TownRegion townRegion = townRegionOptional.get();
+        Optional<TownRegion> baseRegionOptional = town.getBaseRegion();
+        if (baseRegionOptional.isEmpty()) return;
+        TownRegion baseRegion = baseRegionOptional.get();
 
-        Optional<Chunk> chunkOptional = townRegion.getChunk();
-        if(chunkOptional.isEmpty()) return;
+        Optional<Chunk> chunkOptional = baseRegion.getChunk();
+        if (chunkOptional.isEmpty()) return;
         Chunk baseChunk = chunkOptional.get();
 
-        List<Chunk> emptyRegionsItems = getEmptyRegions(baseChunk);
-        int centerRegionSlot = plugin.getTownMapGUI().getInt("center-region-slot");
+        int radiusX = plugin.getTownMapGUI().getInt("radius-X");
+        int radiusY = plugin.getTownMapGUI().getInt("radius-Y");
 
-        System.out.println(emptyRegionsItems.size());
-
-        for (Chunk emptyChunk : emptyRegionsItems) {
-            int x = emptyChunk.getX() - baseChunk.getX();
-            int y = emptyChunk.getZ() - baseChunk.getZ();
-            GuiItem item = ItemUtils.makeItem(plugin.getTownMapGUI().getConfigurationSection("items.empty-region"),
-                    Placeholder.builder().applyForChunk(emptyChunk).build()).asGuiItem();
-            gui.setItem(centerRegionSlot + x + 9 * y, item);
+        List<Chunk> allChunksAround = plugin.getTownManager().getChunksAround(baseChunk, radiusX, radiusY, true).stream().toList();
+        for (Chunk chunk : allChunksAround) {
+            Optional<TownRegion> townRegionOptional = plugin.getTownManager().getTownRegionByChunk(chunk);
+            if (townRegionOptional.isEmpty()) {
+                if(plugin.getTownManager().availableForClaiming(chunk, town)) {
+                    setRegionItem(gui, chunk, baseChunk, "items.available-claim-region");
+                }else {
+                    setRegionItem(gui, chunk, baseChunk, "items.empty-region");
+                }
+            } else {
+                TownRegion townRegion = townRegionOptional.get();
+                if (townRegion.getTownId() == user.getTownId() &&
+                        town.getBaseRegionId() != townRegion.getId()) {
+                    setRegionItem(gui, chunk, baseChunk, "items.safe-region");
+                } else {
+                    setRegionItem(gui, chunk, baseChunk, "items.enemy-region");
+                }
+            }
         }
-
+        setRegionItem(gui, baseChunk, baseChunk, "items.base-region");
 
         gui.open(player);
     }
 
-    private static List<Chunk> getEmptyRegions(Chunk baseChunk) {
-        int radiusX = plugin.getTownMapGUI().getInt("radius-X");
-        int radiusY = plugin.getTownMapGUI().getInt("radius-Y");
-        return plugin.getTownManager().getChunksAround(baseChunk, radiusX, radiusY).stream()
-                .filter(chunk -> plugin.getTownManager().getTownRegionByChunk(chunk).isEmpty())
-                .toList();
+    private static void setRegionItem(Gui gui, Chunk chunk, Chunk baseChunk, String sectionPath) {
+        int x = chunk.getX() - baseChunk.getX();
+        int y = chunk.getZ() - baseChunk.getZ();
+
+        int centerRegionSlot = plugin.getTownMapGUI().getInt("center-region-slot");
+        GuiItem item = ItemUtils.makeItem(plugin.getTownMapGUI().getConfigurationSection(sectionPath),
+                Placeholder.builder().applyForChunk(chunk).build()).asGuiItem();
+        gui.setItem(centerRegionSlot + x + 9 * y, item);
     }
 }

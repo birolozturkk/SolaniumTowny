@@ -92,6 +92,13 @@ public class TownCommand extends BaseCommand {
             StringUtils.sendMessage(player, plugin.getLang().getString("too-close"));
             return false;
         }
+
+        Optional<Town> townOptional = user.getTown();
+        if(townOptional.isPresent() && !plugin.getTownManager().availableForClaiming(chunk, townOptional.get())) {
+            StringUtils.sendMessage(player, plugin.getLang().getString("not-available-claiming"));
+            return false;
+        }
+
         return true;
     }
 
