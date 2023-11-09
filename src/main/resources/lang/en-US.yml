@@ -10,3 +10,4 @@ already-claimed: "&cThis area (%town_region_x%, %town_region_z%) has already bee
 too-close: "&cThis area is too close to another town."
 has-no-town: "&c%player_name% does not belong to any town."
 claimed: "&2Successfully claimed"
+not-available-claiming: "&4Not available for claiming"
